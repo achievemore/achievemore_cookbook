@@ -1,0 +1,10 @@
+name 'achievemore_cookbook'
+maintainer 'Thiago da Anunciação'
+maintainer_email 'thiago.anunciacao@achievemore.com.br'
+license 'all_rights'
+description 'Installs/Configures achievemore_cookbook'
+long_description 'Installs/Configures achievemore_cookbook'
+version '0.1.0'
+
+depends 'opsworks_ruby', '1.4.0'
+depends 'packages', '~> 1.0.0'
