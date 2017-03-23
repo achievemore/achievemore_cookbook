@@ -10,11 +10,56 @@ TODO: Enter the cookbook description here.
         "username": "achievemore",
         "host": "achievemore-bkp.cgdyuveillow.sa-east-1.rds.amazonaws.com",
         "database": "achievemore_qa",
-        "password": ""
+        "password": "AchieveMore123"
       },
       "framework": {
         "migrate": false,
         "assets_precompile": false
+      },
+      "appserver": {
+        "adapter": "puma"
+      },
+      "webserver": {
+        "build_type": "source",
+        "client_max_body_size": "1G"
+      }
+    },
+    "websocket_api": {
+      "database": {
+        "adapter": "mysql",
+        "username": "achievemore",
+        "host": "achievemore-bkp.cgdyuveillow.sa-east-1.rds.amazonaws.com",
+        "database": "achievemore_qa",
+        "password": "AchieveMore123"
+      },
+      "framework": {
+        "migrate": false,
+        "assets_precompile": false
+      },
+      "appserver": {
+        "adapter": "puma"
+      },
+      "webserver": {
+        "build_type": "source",
+        "extra_proxy_config_ssl": [
+          "# to work with websockets",
+          "proxy_http_version 1.1;",
+          "proxy_set_header Upgrade $http_upgrade;",
+          "proxy_set_header Connection \"upgrade\";"
+        ]
+      }
+    },
+    "frontend": {
+      "database": {
+        "adapter": "mysql",
+        "username": "achievemore",
+        "host": "achievemore-bkp.cgdyuveillow.sa-east-1.rds.amazonaws.com",
+        "database": "achievemore_qa",
+        "password": "AchieveMore123"
+      },
+      "framework": {
+        "migrate": false,
+        "assets_precompile": true
       },
       "appserver": {
         "adapter": "puma"
@@ -29,6 +74,8 @@ TODO: Enter the cookbook description here.
   },
   "nginx": {
     "version": "1.11.11",
+    "worker_processes": 2,
+    "worker_connections": 2048,
     "source": {
       "checksum": "5a7ac480248e28d26e68fd1ea3dbd8b05f69726d71528e79332839b171277262",
       "modules": [
