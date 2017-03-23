@@ -5,6 +5,10 @@ prepare_recipe
 include_recipe 'opsworks_ruby::configure'
 
 every_enabled_application do |application|
+  p '############# deploy ########'
+  p application
+  p '########## end deploy ########'
+  
   databases = []
   every_enabled_rds(self, application) do |rds|
     databases.push(Drivers::Db::Factory.build(self, application, rds: rds))
