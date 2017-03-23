@@ -40,10 +40,6 @@ end
 execute 'yum-config-manager --enable epel' if node['platform_family'] == 'rhel'
 
 every_enabled_application do |application|
-  p '++++++ setup +++++++++'
-  p application
-  p '++++++++ end setup ++++++++'
-
   databases = []
   every_enabled_rds(self, application) do |rds|
     databases.push(Drivers::Db::Factory.build(self, application, rds: rds))
