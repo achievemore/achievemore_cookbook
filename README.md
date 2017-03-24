@@ -5,6 +5,7 @@ TODO: Enter the cookbook description here.
 {
   "deploy": {
     "business_backbone": {
+      "rails_env": "production",
       "database": {
         "adapter": "mysql",
         "username": "achievemore",
@@ -25,6 +26,7 @@ TODO: Enter the cookbook description here.
       }
     },
     "websocket_api": {
+      "rails_env": "production",
       "database": {
         "adapter": "mysql",
         "username": "achievemore",
@@ -41,7 +43,7 @@ TODO: Enter the cookbook description here.
       },
       "webserver": {
         "build_type": "source",
-        "extra_proxy_config_ssl": [
+        "extra_config_proxy_ssl": [
           "# to work with websockets",
           "proxy_http_version 1.1;",
           "proxy_set_header Upgrade $http_upgrade;",
@@ -50,6 +52,7 @@ TODO: Enter the cookbook description here.
       }
     },
     "frontend": {
+      "rails_env": "production",
       "database": {
         "adapter": "mysql",
         "username": "achievemore",
@@ -59,7 +62,7 @@ TODO: Enter the cookbook description here.
       },
       "framework": {
         "migrate": false,
-        "assets_precompile": true
+        "assets_precompile": false
       },
       "appserver": {
         "adapter": "puma"
