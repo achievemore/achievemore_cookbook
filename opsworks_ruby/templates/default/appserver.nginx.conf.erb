@@ -35,10 +35,6 @@ server {
     proxy_set_header Host $http_host;
     proxy_redirect off;
 
-    <% @out[:extra_config_proxy].each do |conf| %>
-      <%= conf %>
-    <% end %>
-
     proxy_read_timeout <%= @out[:proxy_read_timeout] || '60' %>;
     proxy_send_timeout <%= @out[:proxy_send_timeout] || '60' %>;
 
@@ -48,6 +44,10 @@ server {
       proxy_pass http://<%= @name %>_<%= @application[:domains].first %>;
       break;
     }
+
+    <% @out[:extra_config_proxy].each do |conf| %>
+      <%= conf %>
+    <% end %>
   }
 
   location /nginx_status {
@@ -130,10 +130,6 @@ server {
     proxy_set_header Host $http_host;
     proxy_redirect off;
 
-    <% @out[:extra_config_proxy_ssl].each do |conf| %>
-      <%= conf %>
-    <% end %>
-
     proxy_read_timeout <%= @out[:proxy_read_timeout] || '60' %>;
     proxy_send_timeout <%= @out[:proxy_send_timeout] || '60' %>;
 
@@ -143,6 +139,10 @@ server {
       proxy_pass http://<%= @name %>_<%= @application[:domains].first %>;
       break;
     }
+
+    <% @out[:extra_config_proxy_ssl].each do |conf| %>
+      <%= conf %>
+    <% end %>
   }
 
   <%= @out[:extra_config_ssl] %>
