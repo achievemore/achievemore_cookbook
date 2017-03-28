@@ -10,5 +10,6 @@ node.default['packages-cookbook'] = [
  'redis-server',
  'imagemagick',
  'memcached',
- 'language-pack-pt'
+ 'language-pack-pt',
+ 'monit'
 ]
