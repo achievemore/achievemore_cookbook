@@ -1,7 +1,7 @@
 {
-  "name": "achievemore-cookbook",
-  "description": "Installs/Configures achievemore-cookbook",
-  "long_description": "Installs/Configures achievemore-cookbook",
+  "name": "achievemore_cookbook",
+  "description": "Installs/Configures achievemore_cookbook",
+  "long_description": "Installs/Configures achievemore_cookbook",
   "maintainer": "Thiago da Anunciação",
   "maintainer_email": "thiago.anunciacao@achievemore.com.br",
   "license": "all_rights",
