@@ -9,9 +9,9 @@ TODO: Enter the cookbook description here.
       "database": {
         "adapter": "mysql",
         "username": "achievemore",
-        "host": "achievemore-bkp.cgdyuveillow.sa-east-1.rds.amazonaws.com",
-        "database": "achievemore_qa",
-        "password": "AchieveMore123"
+        "host": "achievemorev4.cgdyuveillow.sa-east-1.rds.amazonaws.com",
+        "database": "achievemore",
+        "password": "4ch13v3m0r32017"
       },
       "framework": {
         "migrate": false,
@@ -30,9 +30,9 @@ TODO: Enter the cookbook description here.
       "database": {
         "adapter": "mysql",
         "username": "achievemore",
-        "host": "achievemore-bkp.cgdyuveillow.sa-east-1.rds.amazonaws.com",
-        "database": "achievemore_qa",
-        "password": "AchieveMore123"
+        "host": "achievemorev4.cgdyuveillow.sa-east-1.rds.amazonaws.com",
+        "database": "achievemore",
+        "password": "4ch13v3m0r32017"
       },
       "framework": {
         "migrate": false,
@@ -43,6 +43,12 @@ TODO: Enter the cookbook description here.
       },
       "webserver": {
         "build_type": "source",
+        "extra_config_proxy": [
+          "# to work with websockets",
+          "proxy_http_version 1.1;",
+          "proxy_set_header Upgrade $http_upgrade;",
+          "proxy_set_header Connection \"upgrade\";"
+        ],
         "extra_config_proxy_ssl": [
           "# to work with websockets",
           "proxy_http_version 1.1;",
@@ -51,18 +57,77 @@ TODO: Enter the cookbook description here.
         ]
       }
     },
+    "backend": {
+      "rails_env": "production",
+      "database": {
+        "adapter": "mysql",
+        "username": "achievemore",
+        "host": "achievemorev4.cgdyuveillow.sa-east-1.rds.amazonaws.com",
+        "database": "achievemore",
+        "password": "4ch13v3m0r32017"
+      },
+      "framework": {
+        "migrate": false,
+        "assets_precompile": false
+      },
+      "appserver": {
+        "adapter": "puma"
+      },
+      "webserver": {
+        "build_type": "source"      
+      },
+      "worker": {
+        "adapter": "sidekiq",
+        "process_count": 1,
+        "config": {
+          "verbose": true,
+          "concurrency": 7,
+          "dynamic": true,
+          "queues": [
+            [
+              "mailers",
+              7
+            ],
+            [
+              "default",
+              5
+            ]
+          ],
+          "production": {
+            "concurrency": 7
+          },
+          "development": {
+            "concurrency": 1
+          },
+          "limits": {
+            "alertas": 2,
+            "default": 1
+          },
+          "schedule": {
+            "maintenance_jobs": {
+              "every": "1h",
+              "class": "MaintenanceJobs"
+            }
+          }
+        }
+      }
+    },
     "frontend": {
       "rails_env": "production",
       "database": {
         "adapter": "mysql",
         "username": "achievemore",
-        "host": "achievemore-bkp.cgdyuveillow.sa-east-1.rds.amazonaws.com",
-        "database": "achievemore_qa",
-        "password": "AchieveMore123"
+        "host": "achievemorev4.cgdyuveillow.sa-east-1.rds.amazonaws.com",
+        "database": "achievemore",
+        "password": "4ch13v3m0r32017"
       },
+      "create_dirs_before_symlink": [
+        "../../shared/assets/fonts",
+        "../../shared/assets/icons"
+      ],
       "framework": {
         "migrate": false,
-        "assets_precompile": false
+        "assets_precompile": true
       },
       "appserver": {
         "adapter": "puma"
@@ -76,11 +141,11 @@ TODO: Enter the cookbook description here.
     "ruby_version": "2.4"
   },
   "nginx": {
-    "version": "1.11.11",
+    "version": "1.10.3",
     "worker_processes": 2,
     "worker_connections": 2048,
     "source": {
-      "checksum": "5a7ac480248e28d26e68fd1ea3dbd8b05f69726d71528e79332839b171277262",
+      "checksum": "75020f1364cac459cb733c4e1caed2d00376e40ea05588fb8793076a4c69dd90",
       "modules": [
         "chef_nginx::http_v2_module",
         "chef_nginx::http_realip_module",
