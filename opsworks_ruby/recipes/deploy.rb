@@ -19,6 +19,8 @@ every_enabled_application do |application|
 
   fire_hook(:before_deploy, items: databases + [scm, framework, appserver, worker, webserver])
 
+  Chef::Log.warn(application)
+
   deploy application['shortname'] do
     deploy_to deploy_dir(application)
     user node['deployer']['user'] || 'root'
