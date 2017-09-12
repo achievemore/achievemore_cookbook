@@ -44,13 +44,13 @@ apt_repository 'apache2' do
   only_if { node['defaults']['webserver']['use_apache2_ppa'] }
 end
 
-# gem_package 'bundler' do
-#   action :install
-# end
-
-rbenv_gem 'bundler' do
-  ruby_version node['ruby-ng']['ruby_version']
+gem_package 'bundler' do
+  action :install
 end
+
+# rbenv_gem 'bundler' do
+#   ruby_version node['ruby-ng']['ruby_version']
+# end
 
 if node['platform_family'] == 'debian'
   link '/usr/local/bin/bundle' do
