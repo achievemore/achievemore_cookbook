@@ -27,7 +27,10 @@ if node['platform_family'] == 'debian'
   include_recipe 'rbenv::default'
   include_recipe 'rbenv::ruby_build'
 
-  rbenv_ruby node['ruby-ng']['ruby_version']
+  rbenv_ruby "Ruby #{node['ruby-ng']['ruby_version']}" do
+    ruby_version node['ruby-ng']['ruby_version']
+    force true
+  end
 else
   ruby_pkg_version = node['ruby-ng']['ruby_version'].split('.')[0..1]
   package "ruby#{ruby_pkg_version.join('')}"
@@ -44,13 +47,13 @@ apt_repository 'apache2' do
   only_if { node['defaults']['webserver']['use_apache2_ppa'] }
 end
 
-gem_package 'bundler' do
-  action :install
-end
-
-# rbenv_gem 'bundler' do
-#   ruby_version node['ruby-ng']['ruby_version']
+# gem_package 'bundler' do
+#   action :install
 # end
+
+rbenv_gem 'bundler' do
+  ruby_version node['ruby-ng']['ruby_version']
+end
 
 if node['platform_family'] == 'debian'
   link '/usr/local/bin/bundle' do
