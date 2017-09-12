@@ -27,10 +27,9 @@ if node['platform_family'] == 'debian'
   include_recipe 'rbenv::default'
   include_recipe 'rbenv::ruby_build'
 
-  rbenv_ruby "Ruby #{node['ruby-ng']['ruby_version']}" do
-    ruby_version node['ruby-ng']['ruby_version']
-    force true
-  end
+  Chef::Log.warn("Install Ruby version #{node['ruby-ng']['ruby_version']}")
+
+  rbenv_ruby node['ruby-ng']['ruby_version']
 else
   ruby_pkg_version = node['ruby-ng']['ruby_version'].split('.')[0..1]
   package "ruby#{ruby_pkg_version.join('')}"
