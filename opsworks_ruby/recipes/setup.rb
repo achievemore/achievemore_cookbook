@@ -26,6 +26,8 @@ if node['platform_family'] == 'debian'
   # include_recipe 'ruby-ng::dev'
   include_recipe 'rbenv::default'
   include_recipe 'rbenv::ruby_build'
+
+  rbenv_ruby node['ruby-ng']['ruby_version']
 else
   ruby_pkg_version = node['ruby-ng']['ruby_version'].split('.')[0..1]
   package "ruby#{ruby_pkg_version.join('')}"
