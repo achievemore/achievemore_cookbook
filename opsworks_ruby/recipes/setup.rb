@@ -56,11 +56,11 @@ end
 
 if node['platform_family'] == 'debian'
   link '/usr/local/bin/bundle' do
-    to '/usr/bin/bundle'
+    to "/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/bin/bundle"
   end
 else
   link '/usr/local/bin/bundle' do
-    to '/usr/local/bin/bundler'
+    to "/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/bin/bundle"
   end
 end
 
