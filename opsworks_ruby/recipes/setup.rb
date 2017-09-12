@@ -27,9 +27,9 @@ if node['platform_family'] == 'debian'
   include_recipe 'rbenv::default'
   include_recipe 'rbenv::ruby_build'
 
-  Chef::Log.warn("Install Ruby version #{node['ruby-ng']['ruby_version']}")
+  Chef::Log.warn("Install Ruby version #{node['ruby-ng']['ruby_version']}. If dir #{Dir.exist?("/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/"} not exists.")
 
-  rbenv_ruby node['ruby-ng']['ruby_version']
+  rbenv_ruby node['ruby-ng']['ruby_version'] unless Dir.exist?("/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/")
 else
   ruby_pkg_version = node['ruby-ng']['ruby_version'].split('.')[0..1]
   package "ruby#{ruby_pkg_version.join('')}"
