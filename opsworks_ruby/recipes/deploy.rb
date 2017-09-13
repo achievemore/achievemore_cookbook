@@ -19,10 +19,6 @@ every_enabled_application do |application|
 
   fire_hook(:before_deploy, items: databases + [scm, framework, appserver, worker, webserver])
 
-  Chef::Log.warn('DEBUG APPLICATION')
-  Chef::Log.warn(application['shortname'])
-  Chef::Log.warn(node['deployer']['user'] || 'root')
-
   deploy application['shortname'] do
     deploy_to deploy_dir(application)
     user node['deployer']['user'] || 'root'
@@ -90,17 +86,7 @@ every_enabled_application do |application|
         :deploy_before_restart, context: self, items: databases + [scm, framework, appserver, worker, webserver]
       )
 
-      Chef::Log.warn('------------------------ START BEFORE RESTART -------------------------------------')
-
-      begin
-        run_callback_from_file(File.join(release_path, 'deploy', 'before_restart.rb'))
-      rescue Exception => e
-        Chef::Log.warn('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
-        Chef::Log.warn(e.message)
-        Chef::Log.warn(e.backtrace)
-      end
-
-      Chef::Log.warn('------------------------ END RESTART -------------------------------------')
+      run_callback_from_file(File.join(release_path, 'deploy', 'before_restart.rb'))
     end
 
     after_restart do
