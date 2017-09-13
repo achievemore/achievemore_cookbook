@@ -21,7 +21,7 @@ every_enabled_application do |application|
 
   Chef::Log.warn('DEBUG APPLICATION')
   Chef::Log.warn(application['shortname'])
-  Chef::Log.warn(application)
+  Chef::Log.warn(node['deployer']['user'] || 'root')
 
   deploy application['shortname'] do
     deploy_to deploy_dir(application)
@@ -90,13 +90,11 @@ every_enabled_application do |application|
         :deploy_before_restart, context: self, items: databases + [scm, framework, appserver, worker, webserver]
       )
 
-      Chef::Log.warn('------------------------ BEFORE RESTART -------------------------------------')
-      Chef::Log.warn(node['deploy']['timeout'])
-      Chef::Log.warn(File.join(release_path, 'deploy', 'before_restart.rb'))
-
-      Chef::Log.warn(run_callback_from_file(File.join(release_path, 'deploy', 'before_restart.rb')))
+      Chef::Log.warn('------------------------ START BEFORE RESTART -------------------------------------')
 
       run_callback_from_file(File.join(release_path, 'deploy', 'before_restart.rb'))
+
+      Chef::Log.warn('------------------------ END RESTART -------------------------------------')
     end
 
     after_restart do
