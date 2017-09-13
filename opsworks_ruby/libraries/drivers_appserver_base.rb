@@ -97,8 +97,6 @@ module Drivers
       end
 
       def setup_application_yml
-        Chef::Log.warn('############### setup_application_yml ##############')
-        Chef::Log.warn(raw_out)
         return unless raw_out[:application_yml]
         env_config(source_file: 'config/application.yml', destination_file: 'config/application.yml')
       end
