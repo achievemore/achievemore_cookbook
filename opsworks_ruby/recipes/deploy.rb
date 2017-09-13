@@ -92,7 +92,13 @@ every_enabled_application do |application|
 
       Chef::Log.warn('------------------------ START BEFORE RESTART -------------------------------------')
 
-      run_callback_from_file(File.join(release_path, 'deploy', 'before_restart.rb'))
+      begin
+        run_callback_from_file(File.join(release_path, 'deploy', 'before_restart.rb'))
+      rescue Exception => e
+        Chef::Log.warn('$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$')
+        Chef::Log.warn(e.message)
+        Chef::Log.warn(e.backtrace)
+      end
 
       Chef::Log.warn('------------------------ END RESTART -------------------------------------')
     end
