@@ -24,6 +24,8 @@ module Drivers
       end
 
       def deploy_before_restart
+        Chef::Log.warn('############### Framework deploy_before_restart ##############')
+        Chef::Log.warn(out)
         assets_precompile if out[:assets_precompile]
       end
 
