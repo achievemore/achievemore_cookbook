@@ -81,6 +81,8 @@ default['defaults']['webserver']['ssl_port'] = 443
 default['defaults']['webserver']['ssl_for_legacy_browsers'] = false
 default['defaults']['webserver']['extra_config'] = ''
 default['defaults']['webserver']['extra_config_ssl'] = ''
+default['defaults']['webserver']['extra_config_proxy'] = []
+default['defaults']['webserver']['extra_config_proxy_ssl'] = []
 default['defaults']['webserver']['keepalive_timeout'] = '15'
 default['defaults']['webserver']['log_level'] = 'info'
 
