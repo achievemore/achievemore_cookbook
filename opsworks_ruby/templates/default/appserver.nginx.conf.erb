@@ -49,6 +49,10 @@ server {
       proxy_pass http://<%= @name %>_<%= @application[:domains].first %>;
       break;
     }
+
+    <% @out[:extra_config_proxy].each do |conf| %>
+      <%= conf %>
+    <% end %>
   }
 
   location /nginx_status {
@@ -145,6 +149,10 @@ server {
       proxy_pass http://<%= @name %>_<%= @application[:domains].first %>;
       break;
     }
+
+    <% @out[:extra_config_proxy_ssl].each do |conf| %>
+      <%= conf %>
+    <% end %>
   }
 
   <%= @out[:extra_config_ssl] %>
