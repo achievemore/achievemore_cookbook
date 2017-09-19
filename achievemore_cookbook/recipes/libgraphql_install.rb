@@ -1,4 +1,4 @@
-tar_location = "#{Chef::Config['file_cache_path']}/#{node['libgraphql']['source_url']}"
+tar_location = "#{Chef::Config['file_cache_path']}/#{node['libgraphql']['filename']}"
 module_location = "#{Chef::Config['file_cache_path']}/libgraphql/#{node['libgraphql']['source_checksum']}"
 
 remote_file tar_location do
