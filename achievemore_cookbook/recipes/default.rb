@@ -11,5 +11,8 @@ node.default['packages-cookbook'] = [
   'imagemagick',
   'memcached',
   'language-pack-pt',
-  'monit'
+  'monit',
+  'cmake'
 ]
+
+include_recipe 'achievemore_cookbook::libgraphql_install'
