@@ -14,5 +14,3 @@ node.default['packages-cookbook'] = [
   'monit',
   'cmake'
 ]
-
-include_recipe 'achievemore_cookbook::libgraphql_install'
