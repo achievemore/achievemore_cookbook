@@ -12,5 +12,7 @@ node.default['packages-cookbook'] = [
   'memcached',
   'language-pack-pt',
   'monit',
+  'python-dev',
+  'python3-dev',
   'cmake'
 ]
