@@ -7,7 +7,7 @@ long_description 'Installs and configures Rancher service'
 version '0.1.33'
 chef_version '>= 12.5' if respond_to?(:chef_version)
 
-depends 'docker', '~> 4.0'
+depends 'docker', '~> 2.17.0'
 
 supports 'ubuntu', '>= 14.04'
 supports 'centos', '>= 7.0'
