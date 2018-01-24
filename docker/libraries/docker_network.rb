@@ -57,8 +57,6 @@ module DockerCookbook
 
       driver network.info['Driver']
       driver_opts network.info['Options']
-      internal network.info['Internal']
-      enable_ipv6 network.info['EnableIPv6']
     end
 
     action :create do

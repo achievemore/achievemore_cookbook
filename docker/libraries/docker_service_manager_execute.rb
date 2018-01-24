@@ -2,6 +2,8 @@ module DockerCookbook
   class DockerServiceManagerExecute < DockerServiceBase
     resource_name :docker_service_manager_execute
 
+    provides :docker_service_manager, os: 'linux'
+
     # Start the service
     action :start do
       # enable ipv4 forwarding
