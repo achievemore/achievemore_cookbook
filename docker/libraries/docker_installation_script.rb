@@ -32,7 +32,9 @@ module DockerCookbook
     #########
 
     action :create do
-      package 'curl'
+      package 'curl' do
+        action :install
+      end
 
       execute 'install docker' do
         command "curl -sSL #{new_resource.script_url} | sh"
@@ -41,7 +43,7 @@ module DockerCookbook
     end
 
     action :delete do
-      package %w(docker-ce docker-engine) do
+      package 'docker-engine' do
         action :remove
       end
     end
