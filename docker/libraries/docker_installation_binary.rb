@@ -1,13 +1,13 @@
 module DockerCookbook
-  class DockerInstallationTarball < DockerBase
-    require_relative 'helpers_installation_tarball'
+  class DockerInstallationBinary < DockerBase
+    require_relative 'helpers_installation_binary'
 
-    include DockerHelpers::InstallationTarball
+    include DockerHelpers::InstallationBinary
 
     #####################
     # Resource properties
     #####################
-    resource_name :docker_installation_tarball
+    resource_name :docker_installation_binary
 
     property :checksum, String, default: lazy { default_checksum }, desired_state: false
     property :source, String, default: lazy { default_source }, desired_state: false
@@ -21,20 +21,13 @@ module DockerCookbook
 
     action :create do
       # Pull a precompiled binary off the network
-      remote_file docker_tarball do
+      remote_file docker_bin do
         source new_resource.source
         checksum new_resource.checksum
         owner 'root'
         group 'root'
         mode '0755'
         action :create
-        notifies :run, 'execute[extract tarball]', :immediately
-      end
-
-      execute 'extract tarball' do
-        action :nothing
-        command "tar -xzf #{docker_tarball} --strip-components=1 -C #{docker_bin_prefix}"
-        creates docker_bin
       end
     end
 
