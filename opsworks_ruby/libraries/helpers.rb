@@ -1,16 +1,12 @@
 # frozen_string_literal: true
 
 def applications
-  if Chef::Config[:solo]
-    Chef::Log.warn('This recipe uses search. Chef Solo does not support search.')
-  end
+  Chef::Log.warn('This recipe uses search. Chef Solo does not support search.') if Chef::Config[:solo]
   search(:aws_opsworks_app)
 end
 
 def rdses
-  if Chef::Config[:solo]
-    Chef::Log.warn('This recipe uses search. Chef Solo does not support search.')
-  end
+  Chef::Log.warn('This recipe uses search. Chef Solo does not support search.') if Chef::Config[:solo]
   search(:aws_opsworks_rds_db_instance)
 end
 
@@ -20,6 +16,7 @@ def globals(index, application)
 
   old_item = old_globals(index, application)
   return old_item unless old_item.nil?
+
   evaluate_attribute(index, application, :default_global)
 end
 
@@ -38,6 +35,7 @@ end
 
 def old_globals(index, application)
   return unless node['deploy'][application][index.to_s]
+
   message =
     "DEPRECATION WARNING: node['deploy']['#{application}']['#{index}'] is deprecated and will be removed. " \
     "Please use node['deploy']['#{application}']['global']['#{index}'] instead."
@@ -62,15 +60,18 @@ def www_group
 end
 
 def create_deploy_dir(application, subdir = '/')
-  dir = File.join(deploy_dir(application), subdir)
-  directory dir do
+  create_dir File.join(deploy_dir(application), subdir)
+end
+
+def create_dir(path)
+  directory path do
     mode '0755'
     recursive true
     owner node['deployer']['user'] || 'root'
     group www_group
-    not_if { File.directory?(dir) }
+    not_if { File.directory?(path) }
   end
-  dir
+  path
 end
 
 def deploy_dir(application)
@@ -78,15 +79,16 @@ def deploy_dir(application)
 end
 
 def every_enabled_application
-  node['deploy'].keys.each do |deploy_app_shortname|
+  node['deploy'].each_key do |deploy_app_shortname|
     application = applications.detect { |app| app['shortname'] == deploy_app_shortname }
     next unless application && application['deploy']
+
     yield application
   end
 end
 
 def every_enabled_rds(context, application)
-  data = rdses.presence || [Drivers::Db::Factory.build(context, application)]
+  data = [rdses.presence, Drivers::Db::Factory.build(context, application)].flatten.compact
   data.each do |rds|
     yield rds
   end
@@ -113,6 +115,7 @@ end
 
 def apps_not_included
   return [] if node['applications'].blank?
+
   node['deploy'].keys.reject { |app_name| node['applications'].include?(app_name) }
 end
 

@@ -12,7 +12,6 @@ module Drivers
           end
         end
       end
-      # rubocop:enable Metrics/MethodLength
 
       def log_paths
         self.class.log_paths.presence ||
@@ -22,11 +21,20 @@ module Drivers
       def configure_logrotate
         lr_path = logrotate_log_paths || []
         return unless lr_path.any?
+
         lr_props = logrotate_properties
 
         context.logrotate_app logrotate_name do
           path   lr_path
           lr_props.each { |k, v| send(k.to_sym, v) unless v.nil? }
+        end
+        remove_default_conf
+      end
+
+      def remove_default_conf
+        context.logrotate_app adapter do
+          enable false # option that will soon be deprecated
+          action :disable # new option but not working as of this version
         end
       end
 
@@ -40,6 +48,7 @@ module Drivers
         lp.map do |log_path|
           next log_path.call(self) if log_path.is_a?(Proc)
           next log_path if log_path.start_with?('/')
+
           File.join(deploy_dir(app), log_path)
         end.flatten.uniq
       end

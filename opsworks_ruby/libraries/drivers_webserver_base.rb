@@ -2,7 +2,7 @@
 
 module Drivers
   module Webserver
-    class Base < Drivers::Base
+    class Base < Drivers::Base # rubocop:disable ClassLength
       include Drivers::Dsl::Logrotate
       include Drivers::Dsl::Notifies
       include Drivers::Dsl::Output
@@ -16,16 +16,13 @@ module Drivers
         configure_logrotate
       end
 
-      def out
-        handle_output(raw_out)
-      end
-
       def passenger?
         Drivers::Appserver::Factory.build(context, app).adapter == 'passenger'
       end
 
       def validate_app_engine
         return unless passenger? && !self.class.passenger_supported?
+
         raise(ArgumentError, "passenger appserver not supported on #{adapter} webserver")
       end
 
@@ -39,6 +36,10 @@ module Drivers
         raise NotImplementedError
       end
 
+      def ssl_cert_dir
+        "#{conf_dir}/ssl"
+      end
+
       def define_service(default_action = :nothing)
         context.service service_name do
           supports status: true, restart: true, reload: true
@@ -49,9 +50,10 @@ module Drivers
       def add_ssl_item(name)
         key_data = app[:ssl_configuration].try(:[], name)
         return if key_data.blank?
+
         extensions = { private_key: 'key', certificate: 'crt', chain: 'ca' }
 
-        context.template "#{conf_dir}/ssl/#{app[:domains].first}.#{extensions[name]}" do
+        notifying_template "#{ssl_cert_dir}/#{app[:domains].first}.#{extensions[name]}" do
           owner 'root'
           group 'root'
           mode name == :private_key ? '0600' : '0644'
@@ -61,7 +63,7 @@ module Drivers
       end
 
       def add_ssl_directory
-        context.directory "#{conf_dir}/ssl" do
+        context.directory ssl_cert_dir do
           owner 'root'
           group 'root'
           mode '0700'
@@ -72,7 +74,7 @@ module Drivers
         dhparams = out[:dhparams]
         return if dhparams.blank?
 
-        context.template "#{conf_dir}/ssl/#{app[:domains].first}.dhparams.pem" do
+        notifying_template "#{conf_dir}/ssl/#{app[:domains].first}.dhparams.pem" do
           owner 'root'
           group 'root'
           mode '0600'
@@ -84,13 +86,15 @@ module Drivers
       def add_appserver_config
         a = Drivers::Appserver::Factory.build(context, app)
         opts = { application: app, deploy_dir: deploy_dir(app), out: out, conf_dir: conf_dir, adapter: adapter,
-                 name: a.adapter, deploy_env: deploy_env, appserver_config: a.webserver_config_params }
+                 name: a.adapter, deploy_env: deploy_env, appserver_config: a.webserver_config_params,
+                 ssl_cert_dir: ssl_cert_dir }
         return unless Drivers::Appserver::Base.adapters.include?(opts[:name])
+
         generate_appserver_config(opts, site_config_template(opts[:name]), site_config_template_cookbook)
       end
 
       def generate_appserver_config(opts, source_template, source_cookbook)
-        context.template "#{opts[:conf_dir]}/sites-available/#{app['shortname']}.conf" do
+        notifying_template "#{opts[:conf_dir]}/sites-available/#{app['shortname']}.conf" do
           owner 'root'
           group 'root'
           mode '0644'
@@ -104,7 +108,7 @@ module Drivers
         application = app
         conf_path = conf_dir
 
-        context.link "#{conf_path}/sites-enabled/#{application['shortname']}.conf" do
+        notifying_link "#{conf_path}/sites-enabled/#{application['shortname']}.conf" do
           to "#{conf_path}/sites-available/#{application['shortname']}.conf"
         end
       end

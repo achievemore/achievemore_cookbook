@@ -5,7 +5,31 @@
 # Recipe:: setup
 #
 
+include_recipe 'apt'
+
 prepare_recipe
+
+# Create deployer user
+group node['deployer']['group'] do
+  gid 5000
+end
+
+user node['deployer']['user'] do
+  comment 'The deployment user'
+  uid 5000
+  gid 5000
+  shell '/bin/bash'
+  home node['deployer']['home']
+  manage_home true
+end
+
+sudo node['deployer']['user'] do
+  user      node['deployer']['user']
+  group     node['deployer']['group']
+  commands  %w[ALL]
+  host      'ALL'
+  nopasswd  true
+end
 
 # Monit and cleanup
 if node['platform_family'] == 'debian'
@@ -21,18 +45,11 @@ if node['platform_family'] == 'debian'
 end
 
 # Ruby and bundler
-include_recipe 'deployer'
 if node['platform_family'] == 'debian'
-  # include_recipe 'ruby-ng::dev'
-  include_recipe 'rbenv::default'
-  include_recipe 'rbenv::ruby_build'
-
-  dir_exist = Dir.exist?("/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/")
-  Chef::Log.warn("Install Ruby version #{node['ruby-ng']['ruby_version']}. If dir #{dir_exist} not exists.")
-
-  rbenv_ruby node['ruby-ng']['ruby_version'] unless Dir.exist?("/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/")
+  node.default['ruby-ng']['ruby_version'] = node['ruby-version']
+  include_recipe 'ruby-ng::dev'
 else
-  ruby_pkg_version = node['ruby-ng']['ruby_version'].split('.')[0..1]
+  ruby_pkg_version = node['ruby-version'].split('.')[0..1]
   package "ruby#{ruby_pkg_version.join('')}"
   package "ruby#{ruby_pkg_version.join('')}-devel"
   execute "/usr/sbin/alternatives --set ruby /usr/bin/ruby#{ruby_pkg_version.join('.')}"
@@ -47,21 +64,29 @@ apt_repository 'apache2' do
   only_if { node['defaults']['webserver']['use_apache2_ppa'] }
 end
 
-# gem_package 'bundler' do
-#   action :install
-# end
+apt_repository 'nginx' do
+  uri        'http://nginx.org/packages/ubuntu/'
+  components ['nginx']
+  keyserver 'keyserver.ubuntu.com'
+  key 'ABF5BD827BD9BF62'
+  only_if { node['defaults']['webserver']['adapter'] == 'nginx' }
+end
 
-rbenv_gem 'bundler' do
-  ruby_version node['ruby-ng']['ruby_version']
+bundler2_applicable = Gem::Requirement.new('>= 3.0.0.beta1').satisfied_by?(
+  Gem::Version.new(Gem::VERSION)
+)
+gem_package 'bundler' do
+  action :install
+  version '~> 1' unless bundler2_applicable
 end
 
 if node['platform_family'] == 'debian'
   link '/usr/local/bin/bundle' do
-    to "/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/bin/bundle"
+    to '/usr/bin/bundle'
   end
 else
   link '/usr/local/bin/bundle' do
-    to "/opt/rbenv/versions/#{node['ruby-ng']['ruby_version']}/bin/bundle"
+    to '/usr/local/bin/bundler'
   end
 end
 
@@ -73,11 +98,11 @@ every_enabled_application do |application|
     databases.push(Drivers::Db::Factory.build(self, application, rds: rds))
   end
 
-  scm = Drivers::Scm::Factory.build(self, application)
+  source = Drivers::Source::Factory.build(self, application)
   framework = Drivers::Framework::Factory.build(self, application, databases: databases)
   appserver = Drivers::Appserver::Factory.build(self, application)
   worker = Drivers::Worker::Factory.build(self, application, databases: databases)
   webserver = Drivers::Webserver::Factory.build(self, application)
 
-  fire_hook(:setup, items: databases + [scm, framework, appserver, worker, webserver])
+  fire_hook(:setup, items: databases + [source, framework, appserver, worker, webserver])
 end

@@ -8,12 +8,12 @@ module Drivers
       packages debian: 'apache2', rhel: %w[httpd24 mod24_ssl]
       output filter: %i[
         dhparams keepalive_timeout limit_request_body log_dir log_level proxy_timeout
-        ssl_for_legacy_browsers extra_config extra_config_ssl port ssl_port
+        ssl_for_legacy_browsers extra_config extra_config_ssl port ssl_port force_ssl
       ]
       notifies :deploy,
-               action: :restart, resource: { debian: 'service[apache2]', rhel: 'service[httpd]' }, timer: :delayed
+               action: :reload, resource: { debian: 'service[apache2]', rhel: 'service[httpd]' }, timer: :delayed
       notifies :undeploy,
-               action: :restart, resource: { debian: 'service[apache2]', rhel: 'service[httpd]' }, timer: :delayed
+               action: :reload, resource: { debian: 'service[apache2]', rhel: 'service[httpd]' }, timer: :delayed
       log_paths lambda { |context|
         %w[access.log error.log].map do |log_type|
           File.join(context.raw_out[:log_dir], "#{context.app[:domains].first}.#{log_type}")
@@ -24,7 +24,7 @@ module Drivers
         true
       end
 
-      def raw_out
+      def settings
         output = super.merge(
           log_dir: node['deploy'][app['shortname']][driver_type]['log_dir'] || "/var/log/#{service_name}"
         )
@@ -35,16 +35,15 @@ module Drivers
       def setup
         handle_packages
         enable_modules(%w[expires headers lbmethod_byrequests proxy proxy_balancer proxy_http rewrite ssl])
-        install_mod_passenger
+        install_mod_passenger if passenger?
         add_sites_available_enabled
         define_service(:start)
       end
 
       def configure
+        define_service
         add_ssl_directory
-        add_ssl_item(:private_key)
-        add_ssl_item(:certificate)
-        add_ssl_item(:chain)
+        %i[private_key certificate chain].each(&method(:add_ssl_item))
         add_dhparams
 
         remove_defaults
@@ -70,11 +69,10 @@ module Drivers
 
       def remove_defaults
         conf_path = conf_dir
-
-        context.execute 'Remove default sites' do
-          command "find #{conf_path}/sites-enabled -maxdepth 1 -mindepth 1 -exec rm -rf {} \\;"
-          user 'root'
-          group 'root'
+        (node['defaults']['webserver']['remove_default_sites'] || []).each do |file|
+          notifying_file "#{conf_path}/sites-enabled/#{file}", :reload do
+            action :delete
+          end
         end
       end
 
@@ -94,25 +92,28 @@ module Drivers
       def enable_modules(modules = [])
         return unless node['platform_family'] == 'debian'
 
-        context.execute 'Enable modules' do
-          command "a2enmod #{modules.join(' ')}"
-          user 'root'
-          group 'root'
+        modules.each { |mod| enable_module(mod) }
+      end
+
+      def enable_module(mod)
+        notifying_execute "Enable Apache2 module #{mod}" do
+          command "a2enmod #{mod}"
+          not_if "a2query -m #{mod}"
         end
       end
 
       def install_mod_passenger
-        return unless passenger?
         unless node['platform_family'] == 'debian'
           raise(ArgumentError, 'passenger appserver only supported on Debian/Ubuntu')
         end
+
         mod_passenger_packages
       end
 
       def mod_passenger_packages
         enable_mod_passenger_repo(context)
         ver = node['defaults']['appserver']['passenger_version']
-        context.package 'libapache2-mod-passenger' do
+        notifying_package 'libapache2-mod-passenger' do
           version ver unless ver.nil?
         end
       end

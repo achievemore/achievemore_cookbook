@@ -6,6 +6,7 @@ module Drivers
       def self.build(context, app, options = {})
         engine = detect_engine(app, context.node, options)
         raise StandardError, 'There is no supported Db driver for given configuration.' if engine.blank?
+
         engine.new(context, app, options)
       end
 
@@ -14,7 +15,8 @@ module Drivers
           db_driver.allowed_engines.include?(
             options.try(:[], :rds).try(:[], 'engine') ||
             node.try(:[], 'deploy').try(:[], app['shortname']).try(:[], db_driver.driver_type).try(:[], 'adapter') ||
-            node.try(:[], 'defaults').try(:[], db_driver.driver_type).try(:[], 'adapter')
+            node.try(:[], 'defaults').try(:[], db_driver.driver_type).try(:[], 'adapter') ||
+            'sqlite'
           )
         end
       end
