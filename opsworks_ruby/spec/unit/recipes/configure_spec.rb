@@ -65,33 +65,13 @@ describe 'opsworks_ruby::configure' do
   end
 
   context 'Postgresql + Git + Unicorn + Nginx + Rails + Sidekiq' do
-    it 'creates proper database.yml template with connection options' do
+    it 'creates proper database.yml template' do
       db_config = Drivers::Db::Postgresql.new(chef_run, aws_opsworks_app, rds: aws_opsworks_rds_db_instance).out
       expect(db_config[:adapter]).to eq 'postgresql'
       expect(chef_run)
         .to render_file("/srv/www/#{aws_opsworks_app['shortname']}/shared/config/database.yml").with_content(
           JSON.parse({ development: db_config, production: db_config, staging: db_config }.to_json).to_yaml
         )
-    end
-
-    context 'custom database config' do
-      let(:chef_runner) do
-        ChefSpec::SoloRunner.new(platform: 'ubuntu', version: '14.04') do |solo_node|
-          app_name = aws_opsworks_app['shortname']
-          solo_node.set['deploy'][app_name]['database'] = {
-            'primary' => { 'test' => 1 },
-            'secondary' => { 'test' => 2 }
-          }
-        end
-      end
-
-      it 'creates proper database.yml template when multi-level config is provided' do
-        db_config = { primary: { test: 1 }, secondary: { test: 2 } }
-        expect(chef_run)
-          .to render_file("/srv/www/#{aws_opsworks_app['shortname']}/shared/config/database.yml").with_content(
-            JSON.parse({ development: db_config, production: db_config }.to_json).to_yaml
-          )
-      end
     end
 
     it 'creates logrotate file for rails' do
@@ -879,10 +859,6 @@ describe 'opsworks_ruby::configure' do
         deploy['dummy_project']['appserver']['max_pool_size'] = 10
         deploy['dummy_project']['appserver']['min_instances'] = 5
         deploy['dummy_project']['appserver']['mount_point'] = '/some/mount/point'
-        deploy['dummy_project']['appserver']['pool_idle_time'] = 300
-        deploy['dummy_project']['appserver']['max_request_queue_size'] = 100
-        deploy['dummy_project']['appserver']['error_document'] = { "503": '503.html', "504": '504.html' }
-        deploy['dummy_project']['appserver']['passenger_max_preloader_idle_time'] = 300
         deploy['dummy_project']['webserver']['adapter'] = 'apache2'
         deploy['dummy_project']['global']['environment'] = 'production'
         solo_node.set['deploy'] = deploy
@@ -931,20 +907,6 @@ describe 'opsworks_ruby::configure' do
       expect(chef_run)
         .to render_file("/etc/apache2/sites-available/#{aws_opsworks_app['shortname']}.conf")
         .with_content('PassengerMinInstances 5')
-      expect(chef_run)
-        .to render_file("/etc/apache2/sites-available/#{aws_opsworks_app['shortname']}.conf")
-        .with_content('PoolIdleTime 300')
-      expect(chef_run)
-        .to render_file("/etc/apache2/sites-available/#{aws_opsworks_app['shortname']}.conf")
-        .with_content('MaxRequestQueueSize 100')
-      expect(chef_run)
-        .to render_file("/etc/apache2/sites-available/#{aws_opsworks_app['shortname']}.conf")
-        .with_content('PassengerErrorOverride on')
-        .with_content('ErrorDocument 503 /503.html')
-        .with_content('ErrorDocument 504 /504.html')
-      expect(chef_run)
-        .to render_file("/etc/apache2/sites-available/#{aws_opsworks_app['shortname']}.conf")
-        .with_content('PassengerMaxPreloaderIdleTime 300')
       expect(chef_run)
         .to render_file("/etc/apache2/sites-available/#{aws_opsworks_app['shortname']}.conf")
       expect(chef_run)

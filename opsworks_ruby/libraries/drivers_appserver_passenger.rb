@@ -5,16 +5,7 @@ module Drivers
     class Passenger < Drivers::Appserver::Base
       adapter :passenger
       allowed_engines :passenger
-      WEBSERVER_CONFIG_PARAMS = %i[
-        max_pool_size
-        min_instances
-        mount_point
-        pool_idle_time
-        max_request_queue_size
-        error_document
-        passenger_max_preloader_idle_time
-      ].freeze
-      output filter: WEBSERVER_CONFIG_PARAMS
+      output filter: %i[max_pool_size min_instances mount_point]
 
       def manual_action(action); end
 
@@ -26,7 +17,7 @@ module Drivers
 
       def webserver_config_params
         o = out
-        Hash[WEBSERVER_CONFIG_PARAMS.map { |k| [k, o[k]] }].reject { |_k, v| v.nil? }
+        Hash[%i[max_pool_size min_instances mount_point].map { |k| [k, o[k]] }].reject { |_k, v| v.nil? }
       end
     end
   end

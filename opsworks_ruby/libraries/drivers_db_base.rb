@@ -17,10 +17,13 @@ module Drivers
         handle_packages
       end
 
-      # rubocop:disable Metrics/AbcSize:
+      # rubocop:disable Metrics/AbcSize
       def out
-        return out_defaults if multiple_databases?
-        return out_node_engine if configuration_data_source == :node_engine
+        if configuration_data_source == :node_engine
+          return out_defaults.merge(
+            database: out_defaults[:database] || app['data_sources'].first.try(:[], 'database_name')
+          )
+        end
 
         out_defaults.merge(
           adapter: adapter, username: options[:rds]['db_user'], password: options[:rds]['db_password'],
@@ -28,18 +31,10 @@ module Drivers
           database: app['data_sources'].first.try(:[], 'database_name')
         ).reject { |_k, v| v.blank? }
       end
-      # rubocop:enable Metrics/AbcSize:
-
-      def out_node_engine
-        out_defaults.merge(
-          database: out_defaults[:database] || app['data_sources'].first.try(:[], 'database_name')
-        )
-      end
+      # rubocop:enable Metrics/AbcSize
 
       def out_defaults
-        base = JSON.parse((driver_config || {}).to_json, symbolize_names: true)
-        return base if multiple_databases?
-
+        base = JSON.parse((node['deploy'][app['shortname']][driver_type] || {}).to_json, symbolize_names: true)
         defaults.merge(base).merge(adapter: adapter)
       end
 
@@ -57,10 +52,6 @@ module Drivers
         "#{out[:adapter]}://#{out[:username]}:#{out[:password]}@#{out[:host]}#{show_port}/#{out[:database]}"
       end
 
-      def multiple_databases?
-        (driver_config || {}).values.detect { |child| child.is_a?(Hash) }.present?
-      end
-
       protected
 
       def app_engine
@@ -68,16 +59,8 @@ module Drivers
       end
 
       def node_engine
-        adapter = if multiple_databases?
-                    driver_config.values.detect { |child| child.is_a?(Hash) }.try(:[], 'adapter')
-                  else
-                    driver_config.try(:[], 'adapter')
-                  end
-        adapter || node['defaults'].try(:[], driver_type).try(:[], 'adapter')
-      end
-
-      def driver_config
-        @driver_config ||= node['deploy'][app['shortname']][driver_type]
+        node['deploy'][app['shortname']][driver_type].try(:[], 'adapter') ||
+          node['defaults'].try(:[], driver_type).try(:[], 'adapter')
       end
     end
   end

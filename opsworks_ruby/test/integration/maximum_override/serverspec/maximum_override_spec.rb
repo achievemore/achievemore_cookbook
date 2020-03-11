@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 describe 'opsworks_ruby::setup' do
-  describe package('ruby2.6') do
+  describe package('ruby2.3') do
     it { should be_installed }
   end
 
   describe package('libsqlite3-dev') do
-    it { should be_installed }
+    it { should_not be_installed }
   end
 
   describe package('git') do
@@ -250,9 +250,7 @@ describe 'opsworks_ruby::deploy' do
 
   context 'framework' do
     describe file('/srv/www/other_project/shared/config/database.yml') do
-      its(:content) { should include 'primary:' }
-      its(:content) { should include 'secondary:' }
-      its(:content) { should include 'adapter: sqlite3' }
+      it { should_not exist }
     end
 
     describe file('/srv/www/yet_another_project/current/config/database.yml') do

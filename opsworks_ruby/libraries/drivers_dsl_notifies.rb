@@ -15,7 +15,7 @@ module Drivers
         end
       end
 
-      # rubocop:disable Layout/LineLength
+      # rubocop:disable Metrics/LineLength
       def notifies
         notifier = self.class.notifies.presence || (self.class.superclass.respond_to?(:notifies) && self.class.superclass.notifies)
         parsed_notifier = {}
@@ -30,7 +30,7 @@ module Drivers
 
         parsed_notifier
       end
-      # rubocop:enable Layout/LineLength
+      # rubocop:enable Metrics/LineLength
 
       def notifying_resource(what, name, action = :restart, timing = :delayed, &block)
         r = context.send(what, name, &block)

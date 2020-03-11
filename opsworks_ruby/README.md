@@ -45,8 +45,6 @@ Author: [Igor Rzegocki](https://www.rzegocki.pl/) ([@ajgon](https://github.com/a
 * Marcos Beirigo ([@marcosbeirigo](https://github.com/marcosbeirigo))
 * John Calvin Young ([@johncalvinyoung](https://github.com/johncalvinyoung))
 * Rich Seviora ([@richseviora](https://github.com/richseviora))
-* Josh Goodall ([@inopinatus](https://github.com/inopinatus))
-* Kazuki Fujii ([@kazukifujii](https://github.com/kazukifujii))
 
 ## License
 

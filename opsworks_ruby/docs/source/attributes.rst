@@ -34,19 +34,6 @@ convention).
      of an application, not included in this list - it will be skipped, as this list
      takes precedence over anything else.
 
--  ``node['ruby-provider']``
-
-  -  **Type:** string
-  -  **Default:** ``ruby-ng``
-  -  **Supported values:** ``ruby-ng``, ``fullstaq``
-  -  Sets the rubies packages provider. It configures proper apt repository and
-     package namespaces.
-     **Important** please note, that *NO** compatibility cheks for distro/repositories
-     are performed. It's user responsibility to ensure, that given ruby version from
-     given provider can be installed on given platform.
-     For example ``fullstaq`` only works on ``Ubuntu 18.04`` platform, installing it
-     on ``16.04`` will fail.
-
 -  ``node['ruby-version']``
 
   -  **Type:** string
@@ -58,30 +45,6 @@ convention).
      **Important** please note, that some versions may be available on one system,
      and not on the other (for example ``ruby-ng`` gets freshest versions of ruby
      way earlier than Amazon Linux).
-
--  ``node['ruby-variant']``
-
-  -  **Type:** string
-  -  **Supported values:** none, ``jemalloc``, ``malloctrim``
-  -  Sets ruby variant for given version.
-     **Important** This option works only when ``node['ruby-provider']``
-     is set to ``fullstaq``.
-
--  ``node['use-nodejs']``
-
-  -  **Type:** boolean
-  -  **Default:** ``false``
-  -  If enabled, a nodejs and yarn will be installed on a machine, to provide support
-     for webpack and assets precompilation.
-
--  ``node['chef-version']``
-
-  -  **Type:** integer or boolean
-  -  **Default:** ``false``
-  -  If enabled current chef on OpsWorks will be updated to provided version (if integer
-     provided) or the the latest version (if ``true``).
-     **Important** plase note, that ``true`` is hazardous, because it allows uncontrolled
-     upgrade to a potentially major version, i.e. breaking change could occur.
 
 Cross-application attributes
 ----------------------------
@@ -195,13 +158,13 @@ Global parameters apply to the whole application, and can be used by any section
 database
 ~~~~~~~~
 
-Those parameters will be passed without any alteration to the ``database.yml`` file. Keep in mind, that if you have
-RDS connected to your OpsWorks application, you don’t need to use them. The chef will do all the job, and determine
-them for you.
-
-**Important** Rails 6 introduced multiple database support. This configuration option supports that, by adding
-extra key to ``database`` which is grouping the fields, for example: ``app['database']['primary']['adapter']``.
-For backward compatibility old format is also supported.
+| Those parameters will be passed without any alteration to the
+  ``database.yml``
+| file. Keep in mind, that if you have RDS connected to your OpsWorks
+  application,
+| you don’t need to use them. The chef will do all the job, and
+  determine them
+| for you.
 
 -  ``app['database']['adapter']``
 
@@ -584,31 +547,6 @@ passenger
     you to configure your application to handle only a subset of requests
     made to your web server. Useful for certain hybrid static/dynamic
     web sites.
-
-- ``app['appserver']['pool_idle_time']``
-
-  - **Type:** Integer
-  - **Default:** 300
-  - Sets the ``PoolIdleTime`` parameter
-
-- ``app['appserver']['max_request_queue_size']``
-
-  - **Type:** Integer
-  - **Default:** 100
-  - Sets the ``MaxRequestQueueSize`` parameter
-
-- ``app['appserver']['error_document']``
-
-  - **Type:** Hash
-  - **Default:** off
-  - Sets the { "status": "file" } parameter
-    e.g. { "500": "500.html", "503": "503.html" }
-
-- ``app['appserver']['passenger_max_preloader_idle_time']``
-
-  - **Type:** Integer
-  - **Default:** 300
-  - Sets the ``PassengerMaxPreloaderIdleTime`` parameter
 
 webserver
 ~~~~~~~~~
