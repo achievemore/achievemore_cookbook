@@ -1,3 +1,119 @@
+# [1.18.0](https://github.com/ajgon/opsworks_ruby/compare/v1.17.0...v1.18.0) (2020-02-29)
+
+
+### Bug Fixes
+
+* **appserver:** fix .env and application.yml symlinks creation ([0580955](https://github.com/ajgon/opsworks_ruby/commit/05809558c5aa1eb10dd4e883f2e2dcfd7654b712)), closes [#232](https://github.com/ajgon/opsworks_ruby/issues/232)
+
+
+### Features
+
+* **appserver:** Add new appserver config params for passenger ([#227](https://github.com/ajgon/opsworks_ruby/issues/227)) ([0500521](https://github.com/ajgon/opsworks_ruby/commit/050052148c543c557783589cf0347fd026f16bfd))
+* **setup:** add support for fullstaq ruby repos ([1489d01](https://github.com/ajgon/opsworks_ruby/commit/1489d01c14caf51d2150784db09cfdecfddf281a)), closes [#229](https://github.com/ajgon/opsworks_ruby/issues/229)
+
+
+
+# [1.17.0](https://github.com/ajgon/opsworks_ruby/compare/v1.16.0...v1.17.0) (2019-11-23)
+
+
+### Bug Fixes
+
+* replace symlink options instead of appending them ([b2650fb](https://github.com/ajgon/opsworks_ruby/commit/b2650fbea79c44d4f073c00a511a1017b3d4199f)), closes [#224](https://github.com/ajgon/opsworks_ruby/issues/224)
+
+
+### Features
+
+* **database:** add support for multiple databases per environment ([0c7f89f](https://github.com/ajgon/opsworks_ruby/commit/0c7f89fe83933be7ef0cead39363dce7e8fbe346)), closes [#226](https://github.com/ajgon/opsworks_ruby/issues/226)
+
+
+### BREAKING CHANGES
+
+* `app['global']['create_dirs_before_symlink']`,
+`app['global']['purge_before_symlink']` and `app['global']['symlinks']`
+now overrides defaults instead of appending them. If you were relying on
+those options in your Custom JSON, you need to add missing defaults
+manually.
+
+For example given:
+
+```json
+{
+  "deploy": {
+    "myapp": {
+      "global": {
+        "create_dirs_before_symlink": ["test/create"],
+        "purge_before_symlink": ["test/purge"],
+        "symlinks": {
+          "test": "test/symlinks"
+        }
+      }
+    }
+  }
+}
+```
+
+you need to replace it to:
+
+```json
+{
+  "deploy": {
+    "myapp": {
+      "global": {
+        "create_dirs_before_symlink": ["tmp", "public", "config", "../../shared/cache", "../../shared/assets", "test/create"],
+        "purge_before_symlink": ["log", "tmp/cache", "tmp/pids", "public/system", "public/assets", "test/purge"],
+        "symlinks": {
+          "system": "public/system",
+          "assets": "public/assets",
+          "cache": "tmp/cache",
+          "pids": "tmp/pids",
+          "log": "log",
+          "test": "test/symlinks"
+        }
+      }
+    }
+  }
+}
+```
+
+
+
+# [1.16.0](https://github.com/ajgon/opsworks_ruby/compare/v1.15.0...v1.16.0) (2019-09-11)
+
+
+### Bug Fixes
+
+* **webserver:** remove default nginx config from conf.d ([#220](https://github.com/ajgon/opsworks_ruby/issues/220)) ([23929e3](https://github.com/ajgon/opsworks_ruby/commit/23929e3))
+* keep the last `nginx` cookbook version compatible with chef 12 ([b5b13d0](https://github.com/ajgon/opsworks_ruby/commit/b5b13d0)), closes [#222](https://github.com/ajgon/opsworks_ruby/issues/222)
+
+
+### Features
+
+* **setup:** add chef version configuration option ([ffe2b42](https://github.com/ajgon/opsworks_ruby/commit/ffe2b42))
+
+
+
+# [1.15.0](https://github.com/ajgon/opsworks_ruby/compare/v1.14.0...v1.15.0) (2019-07-09)
+
+
+### Bug Fixes
+
+* **apache:** fix apache serving assets rather than proxying to app server ([#210](https://github.com/ajgon/opsworks_ruby/issues/210)) ([9dfdeed](https://github.com/ajgon/opsworks_ruby/commit/9dfdeed))
+* **appserver:** Compare lockfiles instead of main Gemfile ([c02af02](https://github.com/ajgon/opsworks_ruby/commit/c02af02))
+* **appserver:** fix duplicate after_fork/on_worker_boot stanzas in appserver configs ([c0b0e84](https://github.com/ajgon/opsworks_ruby/commit/c0b0e84))
+* **worker:** adapted monit config for sidekiq 6.x ([4a58654](https://github.com/ajgon/opsworks_ruby/commit/4a58654)), closes [#215](https://github.com/ajgon/opsworks_ruby/issues/215)
+* **worker:** fix sidekiq quiet/shutdown scripts ([59198b9](https://github.com/ajgon/opsworks_ruby/commit/59198b9)), closes [#217](https://github.com/ajgon/opsworks_ruby/issues/217)
+* **worker:** quieting and stopping sidekiq ([efc1231](https://github.com/ajgon/opsworks_ruby/commit/efc1231))
+
+
+### Features
+
+* **apache:** apache configuration to use appserver’s port provided in custom json ([b576788](https://github.com/ajgon/opsworks_ruby/commit/b576788))
+* **setup:** add global option for enabling/disabling nodejs ([1f1fa4b](https://github.com/ajgon/opsworks_ruby/commit/1f1fa4b))
+* **setup:** support for webpacker ([569b9bb](https://github.com/ajgon/opsworks_ruby/commit/569b9bb))
+* **setup:** use latest nodejs lts 10.15.3 ([61bb605](https://github.com/ajgon/opsworks_ruby/commit/61bb605))
+
+
+
 # [1.14.0](https://github.com/ajgon/opsworks_ruby/compare/v1.13.0...v1.14.0) (2019-03-06)
 
 
