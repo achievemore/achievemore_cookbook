@@ -20,7 +20,7 @@ depends 'ohai', '< 5.3'
 depends 'ruby-ng'
 depends 's3_file'
 depends 'seven_zip', '~> 2.0'
-depends 'sudo', '= 5.4.4'
+depends 'sudo'
 depends 'windows', '< 5.0'
 depends 'yarn'
 
