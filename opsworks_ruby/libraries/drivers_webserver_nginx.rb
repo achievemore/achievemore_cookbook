@@ -8,7 +8,7 @@ module Drivers
       output filter: %i[
         build_type client_body_timeout client_header_timeout client_max_body_size dhparams keepalive_timeout
         log_dir log_level proxy_read_timeout proxy_send_timeout send_timeout ssl_for_legacy_browsers
-        extra_config extra_config_ssl enable_upgrade_method port ssl_port
+        extra_config extra_config_ssl enable_upgrade_method port ssl_port force_ssl
       ]
       notifies :deploy, action: :reload, resource: 'service[nginx]', timer: :delayed
       notifies :undeploy, action: :reload, resource: 'service[nginx]', timer: :delayed
@@ -29,7 +29,7 @@ module Drivers
       def setup
         node.default['nginx']['install_method'] = out[:build_type].to_s == 'source' ? 'source' : 'package'
         recipe = out[:build_type].to_s == 'source' ? 'source' : 'default'
-        context.include_recipe("chef_nginx::#{recipe}")
+        context.include_recipe("nginx::#{recipe}")
         define_service(:start)
       end
 
@@ -41,6 +41,7 @@ module Drivers
         add_ssl_item(:chain)
         add_dhparams
 
+        remove_defaults
         add_appserver_config
         enable_appserver_config
         super
@@ -57,6 +58,14 @@ module Drivers
 
       def service_name
         'nginx'
+      end
+
+      private
+
+      def remove_defaults
+        notifying_file "#{conf_dir}/conf.d/default.conf", :reload do
+          action :delete
+        end
       end
     end
   end

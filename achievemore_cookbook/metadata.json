@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "rbenv": "~> 1.7.1",
-    "opsworks_ruby": "= 1.8.0",
+    "opsworks_ruby": "~> 1.18.0",
     "packages": "~> 1.0.0"
   },
   "recommendations": {

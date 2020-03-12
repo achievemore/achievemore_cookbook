@@ -20,17 +20,17 @@ The following platforms have been tested with Test Kitchen:
 |---------------+-------|
 | centos-7      | X     |
 |---------------+-------|
+| centos-8      | X     |
+|---------------+-------|
 | fedora        | X     |
-|---------------+-------|
-| debian-7      | X     |
-|---------------+-------|
-| debian-8      | X     |
 |---------------+-------|
 | debian-9      | X     |
 |---------------+-------|
-| ubuntu-14.04  | X     |
+| debian-10     | X     |
 |---------------+-------|
 | ubuntu-16.04  | X     |
+|---------------+-------|
+| ubuntu-18.04  | X     |
 |---------------+-------|
 | openSUSE Leap | X     |
 |---------------+-------|
@@ -38,12 +38,11 @@ The following platforms have been tested with Test Kitchen:
 
 ### Chef
 
-- Chef 12.7+
+- Chef 14+
 
 ### Cookbooks
 
-- depends 'build-essential' - For compiling from source
-- depends 'homebrew' - For macOS Support
+- none
 
 ## Usage
 
@@ -59,10 +58,23 @@ Add `git::default`, `git::source` or `git::windows` to your run_list OR add `dep
 
 The `git_client` resource manages the installation of a Git client on a machine.
 
+`Note`: on macOS systems homebrew must first be installed on the system before running this resource. Prior to version 9.0 of this cookbook homebrew was automatically installed.
+
 #### Example
 
 ```ruby
 git_client 'default' do
+  action :install
+end
+```
+
+#### Example of source install
+
+```ruby
+git_client 'source' do
+  provider Chef::Provider::GitClient::Source
+  source_version '2.14.2'
+  source_checksum 'a03a12331d4f9b0f71733db9f47e1232d4ddce00e7f2a6e20f6ec9a19ce5ff61'
   action :install
 end
 ```

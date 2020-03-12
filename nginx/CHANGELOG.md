@@ -2,46 +2,6 @@
 
 This file is used to list changes made in each version of the nginx cookbook.
 
-## Unreleased
-
-## 10.0.2 (2019-09-24)
-
-- Bug Fix: Add missing service resource in `nginx_site` resource. [Issue #505](https://github.com/sous-chefs/nginx/issues/505))
-
-## 10.0.1 (2019-08-04)
-
-- Maintenance: Add contributing.md file for cookbook health metrics
-
-## 10.0.0 (2019-08-04)
-
-- *Breaking Change:* Remove all attributes
-- *Breaking Change:* Remove all recipes
-- *Breaking Change:* Remove source install
-- *Breaking Change:* Remove modules
-- *Breaking Change:* Remove community_cookbook_releaser gem
-- *Breaking Change:* Support only Operating Systems with systemd
-  - Remove support for Fedora, Amazon Linux, CentOS 6, openSUSE Leap 42
-- *Breaking Change:* Cookbook now requires Chef >= 14
-- Feature: Add resources for all recipes
-- Feature: Add nginx_install custom resource with source properties distro, repo, epel and passenger
-- Feature: Add nginx_config custom resource
-- Feature: Add support for openSUSE Leap 15
-- Feature: Add support for Amazon Linux 2
-- Feature: Add support to deactivate anonymous telemetry reporting when using Passenger.
-- Bug Fix: Ensure systemd unit file is reloaded (specifically for upgrade or downgrade) source complile install method.
-- Bug Fix: Ensure apt-transport-https package is installed on Debian/Ubuntu for apt_repository resource
-- Bug Fix: compiling nginx from source triggers systemd to reload services to avoid systemd run 'systemctl daemon-reload' related errors
-- Maintenance: Move spec/libraries to spec/unit/libraries
-- Maintenance: Bump ohai dependency to ~> 5.2
-- CI: Update kitchen to use chef solo
-- CI: Add CircleCI testing
-- CI: Update circleci sous-chefs orb to version 2
-- Tidy: Remove unused files from the repository
-
-## 9.0.0 (2018-11-13)
-
-- This cookbook now requires Chef 13.3 or later, but no longer requires the zypper cookbook. This cookbook was throwing deprecation warnings for users of current Chef 14 releases.
-
 ## 8.1.6 (2018-10-05)
 
 - passenger: fixed install order

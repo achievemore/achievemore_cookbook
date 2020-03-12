@@ -2,12 +2,10 @@ class Chef
   class Provider
     class GitClient
       class Source < Chef::Provider::GitClient
-        include Chef::DSL::IncludeRecipe
-
         action :install do
           raise "#{node['platform']} is not supported by the git_client source resource" unless platform_family?('rhel', 'suse', 'fedora', 'debian', 'amazon')
 
-          include_recipe 'build-essential'
+          build_essential 'install compilation tools for git'
 
           # move this to attributes.
           case node['platform_family']
@@ -40,7 +38,7 @@ class Chef
             command <<-COMMAND
     (mkdir git-#{new_resource.source_version} && tar -zxf git-#{new_resource.source_version}.tar.gz -C git-#{new_resource.source_version} --strip-components 1)
     (cd git-#{new_resource.source_version} && make prefix=#{new_resource.source_prefix} #{additional_make_params} install)
-  COMMAND
+            COMMAND
             not_if "git --version | grep #{new_resource.source_version}"
             not_if "#{new_resource.source_prefix}/bin/git --version | grep #{new_resource.source_version}"
           end

@@ -1,15 +1,32 @@
 # frozen_string_literal: true
 
-# ruby
+# chef client updater
+if node['chef-version']
+  chef_version = node['chef-version'].to_s.to_i
+  default['chef_client_updater']['post_install_action'] = 'exec'
+  default['chef_client_updater']['version'] = chef_version.positive? ? chef_version.to_s : 'latest'
+end
 
+# deployer
+default['deployer']['user'] = 'deploy'
+default['deployer']['group'] = 'deploy'
+default['deployer']['home'] = "/home/#{default['deployer']['user']}"
+
+# ruby
+default['apt']['compile_time_update'] = true
 default['build-essential']['compile_time'] = true
-default['ruby-ng']['ruby_version'] = node['ruby'].try(:[], 'version') || '2.4'
+default['ruby-version'] = node['ruby'].try(:[], 'version') || '2.6'
+default['ruby-provider'] = 'ruby-ng'
 default['nginx']['source']['modules'] = %w[
   nginx::http_ssl_module nginx::http_realip_module nginx::http_gzip_static_module nginx::headers_more_module
   nginx::http_stub_status_module
 ]
 
-default['deploy']['timeout'] = 600
+if node['use-nodejs']
+  # nodejs
+  default['nodejs']['repo'] = 'https://deb.nodesource.com/node_10.x'
+  default['nodejs']['version'] = '10.15.3'
+end
 
 # global
 default['defaults']['global']['environment'] = 'production'
@@ -29,16 +46,27 @@ default['defaults']['global']['logrotate_frequency'] = 'daily'
 default['defaults']['global']['logrotate_options'] = %w[
   missingok compress delaycompress notifempty copytruncate sharedscripts
 ]
+default['defaults']['global']['use_nodejs'] = false
+
+if node['use-nodejs']
+  default['defaults']['global']['symlinks']['node_modules'] = 'node_modules'
+  default['defaults']['global']['symlinks']['packs'] = 'public/packs'
+  default['defaults']['global']['create_dirs_before_symlink'].push('../../shared/node_modules')
+  default['defaults']['global']['create_dirs_before_symlink'].push('../../shared/packs')
+  default['defaults']['global']['purge_before_symlink'].push('node_modules')
+  default['defaults']['global']['purge_before_symlink'].push('public/packs')
+end
 
 # database
 ## common
 
 default['defaults']['database']['adapter'] = 'sqlite3'
 
-# scm
+# source
 ## common
 
-default['defaults']['scm']['remove_scm_files'] = true
+default['defaults']['source']['adapter'] = 'git'
+default['defaults']['source']['remove_scm_files'] = true
 
 # appserver
 ## common
@@ -49,12 +77,19 @@ default['defaults']['appserver']['dot_env'] = false
 default['defaults']['appserver']['preload_app'] = true
 default['defaults']['appserver']['timeout'] = 60
 default['defaults']['appserver']['worker_processes'] = 4
+default['defaults']['appserver']['after_deploy'] = 'stop-start' # (restart|clean-restart)
 
 ## puma
 
 default['defaults']['appserver']['log_requests'] = false
 default['defaults']['appserver']['thread_min'] = 0
 default['defaults']['appserver']['thread_max'] = 16
+default['defaults']['appserver']['on_restart'] = nil
+default['defaults']['appserver']['before_fork'] = nil
+default['defaults']['appserver']['on_worker_boot'] = nil
+default['defaults']['appserver']['on_worker_shutdown'] = nil
+default['defaults']['appserver']['on_worker_fork'] = nil
+default['defaults']['appserver']['after_worker_fork'] = nil
 
 ## thin
 
@@ -86,6 +121,7 @@ default['defaults']['webserver']['log_level'] = 'info'
 default['defaults']['webserver']['remove_default_sites'] = %w[
   default default.conf 000-default 000-default.conf default-ssl default-ssl.conf
 ]
+default['defaults']['webserver']['force_ssl'] = false
 
 ## apache2
 

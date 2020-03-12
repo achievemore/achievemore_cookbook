@@ -3,8 +3,8 @@ module GitCookbook
     # linux packages default to distro offering
     def parsed_package_name
       return new_resource.package_name if new_resource.package_name
-      return 'developer/versioning/git' if node['platform'] == 'omnios'
-      return 'scmgit' if node['platform'] == 'smartos'
+      return 'developer/versioning/git' if platform?('smartos')
+      return 'scmgit' if platform?('smartos')
       'git'
     end
 
@@ -20,7 +20,7 @@ module GitCookbook
 
     def parsed_source_checksum
       return new_resource.source_checksum if new_resource.source_checksum
-      '88995ab18154fa302478d33efa4418d354a5e592645ebef02c69b3dd76b526c1' # 2.9.5 tarball
+      '690f12cc5691e5adaf2dd390eae6f5acce68ae0d9bd9403814f8a1433833f02a' # 2.17.1 tarball
     end
 
     # windows
