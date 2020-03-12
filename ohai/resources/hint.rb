@@ -1,7 +1,3 @@
-
-chef_version_for_provides '< 14.0' if respond_to?(:chef_version_for_provides)
-resource_name :ohai_hint
-
 property :hint_name, String, name_property: true
 property :content, Hash
 property :compile_time, [true, false], default: true
@@ -19,7 +15,7 @@ action :create do
 end
 
 action :delete do
-  file ohai_hint_file_path(new_resource.hint_name) do # ~FC009
+  file ohai_hint_file_path(new_resource.hint_name) do
     action :delete
     notifies :reload, ohai[reload ohai post hint removal]
   end

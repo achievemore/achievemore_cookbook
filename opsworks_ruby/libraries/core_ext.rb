@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
 class Object
-  def try(*methods, &block)
-    try!(*methods, &block) if methods.empty? || respond_to?(methods.first)
+  def try(*a, &b)
+    try!(*a, &b) if a.empty? || respond_to?(a.first)
   end
 
-  def try!(*methods, &block)
-    if methods.empty? && block_given?
-      if block.arity.zero?
-        instance_eval(&block)
+  def try!(*a, &b)
+    if a.empty? && block_given?
+      if b.arity.zero?
+        instance_eval(&b)
       else
         yield self
       end
     else
-      public_send(*methods, &block)
+      public_send(*a, &b)
     end
   end
 
@@ -51,7 +51,7 @@ class Hash
     each_with_object({}) do |(key, value), options|
       options[(begin
                  key.to_sym
-               rescue StandardError
+               rescue
                  key
                end) || key] = value
     end

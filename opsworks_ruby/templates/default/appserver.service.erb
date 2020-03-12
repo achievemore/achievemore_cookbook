@@ -22,7 +22,7 @@ def run_and_ignore_exitcode_and_print_command(command)
   system(command)
 end
 
-def running?
+def <%= @name %>_running?
   if File.exists?(PID_PATH) && (pid = File.read(PID_PATH).chomp) && system("ps aux | grep #{pid} | grep -v grep > /dev/null")
     pid
   else
@@ -31,73 +31,56 @@ def running?
 end
 
 def different_gemfile?
-  current_gemfile = "#{ROOT_PATH}/current/Gemfile.lock"
-  if File.exists?(current_gemfile)
+  if File.exists?("#{ROOT_PATH}/current/Gemfile")
     dir = Dir["#{ROOT_PATH}/releases/*"]
     previous_release_path = dir.sort[dir.size-2]
-    if !previous_release_path.nil? && File.exists?("#{previous_release_path}/Gemfile.lock")
-      return Digest::MD5.hexdigest(File.read(current_gemfile)) != Digest::MD5.hexdigest(File.read("#{previous_release_path}/Gemfile.lock"))
+    if !previous_release_path.nil? && File.exists?("#{previous_release_path}/Gemfile")
+      return Digest::MD5.hexdigest(File.read("#{ROOT_PATH}/current/Gemfile")) != Digest::MD5.hexdigest(File.read("#{previous_release_path}/Gemfile"))
     end
   end
   false
 end
 
-def start
-  puts "Starting <%= @name.capitalize %> #{APP_NAME}"
+def start_<%= @name %>
   run_and_ignore_exitcode_and_print_command "cd #{ROOT_PATH}/current && /usr/local/bin/bundle exec <%= @command %>"
 end
 
-def stop
-  unless running?
+def stop_<%= @name %>
+  if <%= @name %>_running?
+    if run_and_ignore_exitcode_and_print_command "kill -QUIT `cat #{PID_PATH}`"
+      `rm #{PID_PATH}`
+    end
+  else
     puts "You can't stop <%= @name %>, because it's not running"
-    return
   end
-
-  puts "Stopping <%= @name.capitalize %> #{APP_NAME}"
-  retries = 10
-
-  pid = `cat #{PID_PATH}`
-
-  loop do
-    break if !running? || retries <= 0
-
-    run_and_ignore_exitcode_and_print_command "kill -QUIT #{pid}"
-    sleep 1
-    retries -= 1
-  end
-
-  `rm #{PID_PATH}` if run_and_ignore_exitcode_and_print_command "kill -QUIT #{pid}"
 end
 
-def stop_start
-  stop
-  start
-end
-
-def restart
-  if running?
-    puts "Restarting <%= @name.capitalize %> #{APP_NAME}"
+def restart_<%= @name %>
+  if <%= @name %>_running?
     run_and_ignore_exitcode_and_print_command "kill -USR2 `cat #{PID_PATH}`"
   else
-    start
+    start_<%= @name %>
   end
 end
 
 def clean_restart
   if different_gemfile?
     puts "Found a previous version with a different Gemfile: Doing a stop & start"
-    stop_start
+    stop_<%= @name %> if <%= @name %>_running?
+    start_<%= @name %>
   else
-    puts "No previous version with a different Gemfile found. Assuming a quick restart without re-loading gems is safe"
-    restart
+    puts "No previous version with a different Gemfile found. Assuming a quick restart without re-loading gems is save"
+    restart_<%= @name %>
   end
 end
 
-def status
-  if pid = running?
-    puts "<%= @name.capitalize %> #{APP_NAME} running with PID #{pid}"
+def status_<%= @name %>
+  if pid = <%= @name %>_running?
+    puts "<%= @name.capitalize %> <%= @app_shortname %> running with PID #{pid}"
+    return true
   else
-    puts "<%= @name.capitalize %> #{APP_NAME} not running"
+    puts "<%= @name.capitalize %> <%= @app_shortname %> not running"
+    return false
   end
 end
 
@@ -106,19 +89,19 @@ puts "Set <%= @name.capitalize %> process UID to #{uid}"
 
 case ARGV[0]
 when "start"
-  start
+  puts "Starting <%= @name.capitalize %> #{APP_NAME}"
+  start_<%= @name %>
 when "stop"
-  stop
+  puts "Stopping <%= @name.capitalize %> #{APP_NAME}"
+  stop_<%= @name %>
 when "status"
-  status
+  status_<%= @name %>
 when "restart"
-  restart
+  restart_<%= @name %>
 when "clean-restart"
   clean_restart
-when "stop-start"
-  stop_start
 else
-  puts "Usage: {start|stop|status|restart|clean-restart|stop-start}"
+  puts "Usage: {start|stop|status|restart|clean-restart}"
   exit 1
 end
 
